@@ -8,11 +8,16 @@ from __future__ import annotations
 
 import math
 import re
+import unicodedata
 from dataclasses import dataclass
 
 
 def _tokenize(text: str) -> dict[str, float]:
-    tokens = re.findall(r"[a-z0-9]+", text.lower())
+    normalized = unicodedata.normalize("NFKD", text.lower().replace("đ", "d"))
+    ascii_text = "".join(
+        char for char in normalized if not unicodedata.combining(char)
+    )
+    tokens = re.findall(r"[a-z0-9]+", ascii_text.replace("_", " "))
     counts: dict[str, float] = {}
     for token in tokens:
         counts[token] = counts.get(token, 0.0) + 1.0
